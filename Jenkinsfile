@@ -11,9 +11,10 @@ pipeline {
             docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-user') {
                       def image = docker.build('iamunrootable/helloworld:latest')
                       image.push()        
-        }
+                }
         
-      }
+            }
+        }
     }
 
     stage('Lint HTML') {
