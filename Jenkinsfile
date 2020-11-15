@@ -4,8 +4,8 @@ pipeline {
     stage('Build') {
       steps {
         sh'''
-            echo 'FROM debian:latest’ > Dockerfile
-            echo ‘CMD ["/bin/echo", "HELLO WORLD...."]' >> Dockerfile
+            echo 'FROM debian:latest' > Dockerfile
+            echo 'CMD ["/bin/echo", "HELLO WORLD...."]' >> Dockerfile
         '''
         script{
             docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-user') {
