@@ -3,11 +3,16 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'echo "Hello World, This is my first Jenkins build."'
-        sh '''
-                     echo "Multiline shell steps works too"
-                     ls -lah
-                 '''
+        sh'''
+            echo 'FROM debian:latest’ > Dockerfile
+            echo ‘CMD ["/bin/echo", "HELLO WORLD...."]' >> Dockerfile
+        '''
+        script{
+            docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-user') {
+                      def image = docker.build('iamunrootable/helloworld:latest')
+                      image.push()        
+        }
+        
       }
     }
 
@@ -19,7 +24,8 @@ pipeline {
 
     stage('Security Scan') {
       steps {
-        trivy 'apline:latest'
+        sh 'echo "docker.io/iamunrootable/helloworld:latest `pwd`/Dockerfile" > anchore_images'
+        anchore name: 'anchore_images'
       }
     }
 
