@@ -25,7 +25,7 @@ pipeline {
 
     stage('Security Scan') {
       node {
-        def imageLine = iamunrootable/helloworld:latest + ' ' + env.WORKSPACE + '/DockerFile'
+        def imageLine = 'iamunrootable/helloworld:latest' + ' ' + env.WORKSPACE + '/DockerFile'
         writeFile file: 'anchore_images', text: imageLine
         anchore name: 'anchore_images', policyName: 'anchore_policy', bailOnFail: false, inputQueries: [[query: 'list-packages all'], [query: 'cve-scan all']]
         }
