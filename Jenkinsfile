@@ -1,10 +1,6 @@
 #!/usr/bin/env groovy
 pipeline{
-    agent {
-        docker {
-            image 'docker:stable'
-        }
-    }
+    agent any
     environment {
         IMAGE_NAME = 'iamunrootable/helloworld'
         IMAGE_TAG = 'latest'
