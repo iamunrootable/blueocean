@@ -12,6 +12,10 @@ pipeline{
     stages {
         stage('Build Image') {
             steps {
+                sh'''
+                echo 'FROM debian:latest' > Dockerfile
+                echo 'CMD ["/bin/echo", "HELLO WORLD...."]' >> Dockerfile
+                '''
                 sh 'docker build -t ${IMAGE_NAME}:ci .'
             }
         }
