@@ -11,13 +11,12 @@ pipeline{
                 sh'''
                 echo 'FROM debian:latest' > Dockerfile
                 echo 'CMD ["/bin/echo", "HELLO WORLD...."]' >> Dockerfile
+                docker build -t ${IMAGE_NAME}:ci .
                 '''
-                sh 'docker build -t ${IMAGE_NAME}:ci .'
             }
         }
         stage('Scan') {
-            steps {        
-                sh 'apk add bash curl'
+            steps {                     
                 sh 'curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- -d Dockerfile -b .anchore_policy.json ${IMAGE_NAME}:ci'
             }
         }
