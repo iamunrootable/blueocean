@@ -26,7 +26,7 @@ pipeline {
     stage('Security Scan') {
       steps {
         writeFile file: 'anchore_images', text: image
-        anchore name: 'anchore_images', policyName: 'anchore_policy', bailOnFail: false, inputQueries: [[query: 'list-packages all'], [query: 'cve-scan all']]
+        anchore name: 'anchore_images', bailOnFail: false, engineRetries:'1800'
         }
     }
   
