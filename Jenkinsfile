@@ -17,7 +17,7 @@ pipeline{
         }
         stage('Scan') {
             steps {                     
-                sh 'curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- -d Dockerfile -b .anchore_policy.json ${IMAGE_NAME}:ci'
+                sh 'curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- -d Dockerfile -b ./policy_bundle.json ${IMAGE_NAME}:ci'
             }
         }
         stage('Push Image') {
