@@ -29,7 +29,7 @@ pipeline {
         anchore name: 'anchore_images', policyName: 'anchore_policy', bailOnFail: false, inputQueries: [[query: 'list-packages all'], [query: 'cve-scan all']]
         }
     }
-  }
+  
 
     stage('Upload to AWS') {
       steps {
