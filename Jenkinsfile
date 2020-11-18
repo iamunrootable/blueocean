@@ -24,10 +24,11 @@ pipeline {
     }
 
     stage('Security Scan') {
-      steps {
-        sh 'echo "docker.io/iamunrootable/helloworld:latest `pwd`/Dockerfile" > anchore_images'
-        anchore name: 'anchore_images'
-      }
+      node {
+        def imageLine = iamunrootable/helloworld:latest + ' ' + env.WORKSPACE + '/DockerFile'
+        writeFile file: 'anchore_images', text: imageLine
+        anchore name: 'anchore_images', policyName: 'anchore_policy', bailOnFail: false, inputQueries: [[query: 'list-packages all'], [query: 'cve-scan all']]
+        }
     }
 
     stage('Upload to AWS') {
