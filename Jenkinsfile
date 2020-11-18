@@ -1,45 +1,33 @@
-pipeline {
-  agent any
-  stages {
-    stage('Build') {
-      steps {
-        sh'''
-            echo 'FROM debian:latest' > Dockerfile
-            echo 'CMD ["/bin/echo", "HELLO WORLD...."]' >> Dockerfile
-        '''
-        script{
-            docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-user') {
-                      def image = docker.build('iamunrootable/helloworld:latest')
-                      image.push()        
+#!/usr/bin/env groovy
+pipeline{
+    agent {
+        docker {
+            image 'docker:stable'
+        }
+    }
+    environment {
+        IMAGE_NAME = 'iamunrootable/helloworld'
+        IMAGE_TAG = 'latest'
+    }
+    stages {
+        stage('Build Image') {
+            steps {
+                sh 'docker build -t ${IMAGE_NAME}:ci .'
+            }
+        }
+        stage('Scan') {
+            steps {        
+                sh 'apk add bash curl'
+                sh 'curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- -d Dockerfile -b .anchore_policy.json ${IMAGE_NAME}:ci'
+            }
+        }
+        stage('Push Image') {
+            steps {
+                withDockerRegistry([credentialsId: "dockerhub-user", url: "https://index.docker.io/v1/"]){
+                    sh 'docker tag ${IMAGE_NAME}:ci ${IMAGE_NAME}:${IMAGE_TAG}'
+                    sh 'docker push ${IMAGE_NAME}:${IMAGE_TAG}'
                 }
-        
             }
         }
     }
-
-    stage('Lint HTML') {
-      steps {
-        sh 'tidy -q -e *.html'
-      }
-    }
-    
-    stage('Security Scan') {
-      steps {
-        writeFile file: 'anchore_images', text: image
-        anchore name: 'anchore_images', bailOnFail: false, engineRetries:'1800'
-        }
-    }
-  
-
-    stage('Upload to AWS') {
-      steps {
-        withAWS(region: 'us-west-2', credentials:'aws-static') {
-          sh 'echo "Uploading content with AWS creds"'
-          s3Upload(pathStyleAccessEnabled: true, payloadSigningEnabled: true, file: 'index.html', bucket: 'static-jenkins-pipeline')
-        }
-
-      }
-    }
-
-  }
 }
