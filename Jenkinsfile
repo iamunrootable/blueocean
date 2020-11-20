@@ -30,7 +30,7 @@ pipeline{
         }
          stage('Prune Images') {
             steps {
-                sh 'docker image prune --all'
+                sh 'docker image prune --all -f'
             }
         }
     }
