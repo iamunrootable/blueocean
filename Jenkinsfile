@@ -17,7 +17,8 @@ pipeline{
         }
         stage('Scan Image') {
             steps {                     
-                sh 'curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- -d Dockerfile ${IMAGE_NAME}:ci'
+                sh 'echo "${IMAGE_NAME} 'pwd'/Dockerfile" > anchore_images'
+                anchore name: 'anchore_images'
             }
         }
         stage('Push Image to Registry') {
