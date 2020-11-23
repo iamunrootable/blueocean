@@ -17,7 +17,7 @@ pipeline{
         }
         stage('Scan Image') {
             steps {                     
-                sh 'echo "${IMAGE_NAME} 'pwd'/Dockerfile" > anchore_images'
+                sh 'echo "${IMAGE_NAME} $(pwd)/Dockerfile" > anchore_images'
                 anchore name: 'anchore_images'
             }
         }
