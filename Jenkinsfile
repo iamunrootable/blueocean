@@ -15,12 +15,13 @@ pipeline{
                 '''
             }
         }
-        stage('Scan') {
+        stage('Scan Image') {
             steps {                     
-                sh 'curl -s https://ci-tools.anchore.io/inline_scan-v0.6.0 | bash -s -- -d Dockerfile -b ./policy_bundle.json ${IMAGE_NAME}:ci'
+                sh 'echo "${IMAGE_NAME} $(pwd)/Dockerfile" > anchore_images'
+                anchore name: 'anchore_images'
             }
         }
-        stage('Push Image') {
+        stage('Push Image to Registry') {
             steps {
                 withDockerRegistry([credentialsId: "dockerhub-user", url: "https://index.docker.io/v1/"]){
                     sh 'docker tag ${IMAGE_NAME}:ci ${IMAGE_NAME}:${IMAGE_TAG}'
@@ -28,5 +29,23 @@ pipeline{
                 }
             }
         }
+        stage('Lint HTML') {
+            steps {
+                  sh 'tidy -q -e *.html'
+              }
+         }
+        stage('Upload content to AWS') {
+              steps {
+                  withAWS(region:'us-west-2',credentials:'aws-static') {
+                  sh 'echo "Uploading content with AWS creds"'
+                      s3Upload(pathStyleAccessEnabled: true, payloadSigningEnabled: true, file:'index.html', bucket:'static-jenkins-pipeline-acloudlabs')
+                  }
+              }
+         }
+         stage('Prune Images') {
+            steps {
+                sh 'docker image prune --all -f'
+            }
+        }        
     }
 }
